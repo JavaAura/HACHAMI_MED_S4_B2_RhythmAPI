@@ -11,10 +11,10 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://${MONGO_USERNAME:mohahach9}:${MONGO_PASSWORD}@cluster0.2m07i.mongodb.net/${MONGO_DB:RHYTHM_DB}?retryWrites=true&w=majority&appName=Cluster0
-  # Rhythm:
-  #   app:
-  #     jwtSecret: your-secret-key
-  #     jwtExpirationMs: 3600000
+Rhythm:
+  app:
+    jwtSecret: your-secret-key
+    jwtExpirationMs: 3600000
 
 logging:
   level:
