@@ -2,3 +2,6 @@
 Rhythm/.env
 Rhythm/.gitattributes
 Rhythm/mvnw
+Rhythm/logs/application.log
+Rhythm/logs/rhythm-api.log
+.vscode/settings.json
