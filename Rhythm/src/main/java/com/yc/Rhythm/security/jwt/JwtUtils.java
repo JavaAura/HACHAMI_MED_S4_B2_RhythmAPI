@@ -30,6 +30,7 @@ public class JwtUtils {
   public String generateJwtToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+    logger.info("JWT Secret: {}", jwtSecret);
 
     return Jwts.builder()
         .setSubject((userPrincipal.getUsername()))
@@ -40,7 +41,7 @@ public class JwtUtils {
   }
   
   private Key key() {
-    return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    return Keys.secretKeyFor(SignatureAlgorithm.HS256);
   }
 
   public String getUserNameFromJwtToken(String token) {
@@ -52,7 +53,7 @@ public class JwtUtils {
     try {
       Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
       return true;
-    } catch (MalformedInputException e) {
+    } catch (MalformedJwtException e) {
       logger.error("Invalid JWT token: {}", e.getMessage());
     } catch (ExpiredJwtException e) {   
       logger.error("JWT token is expired: {}", e.getMessage());
