@@ -6,18 +6,13 @@ spring:
     name: RhythmApi
   profiles:
     active: ${ACTIVE_PROFILE:prod}
-  security:
-    enabled: false
-  data:
-    mongodb:
-      uri : mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.4
-      database : rhythm_db
-      # ssl :
-      #   enabled: true
+  # security:
+  #   enabled: false
+
 Rhythm:
   app:
     jwtSecret: your-secret-key
-    jwtExpirationMs: 3600000
+    jwtExpirationMs: 10600000
 
 logging:
   level:
@@ -29,3 +24,9 @@ logging:
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+ # Swagger Configuration
+springfox:
+  documentation:
+    swagger-ui:
+      path: /swagger-ui.html
