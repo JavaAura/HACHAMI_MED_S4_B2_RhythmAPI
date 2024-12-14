@@ -2,12 +2,14 @@ package com.yc.Rhythm.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 //import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -19,23 +21,33 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.yc.Rhythm.security.jwt.AuthEntryPointJwt;
 import com.yc.Rhythm.security.service.UserDetailsServiceImpl;
+
+
 import com.yc.Rhythm.security.jwt.AuthTokenFilter;
 
 
 
 @Configuration
 @EnableMethodSecurity
+@EnableWebSecurity
 public class WebSecurityConfig {
-    @Autowired
+
     UserDetailsServiceImpl userDetailsService;
   
-    @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
-  
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-      return new AuthTokenFilter();
+
+    private AuthTokenFilter authTokenFilter;
+
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService ,  AuthEntryPointJwt unauthorizedHandler, AuthTokenFilter authTokenFilter){
+      this.userDetailsService = userDetailsService;
+      this.unauthorizedHandler = unauthorizedHandler;
+      this.authTokenFilter = authTokenFilter;
     }
+  
+    // @Bean
+    // public AuthTokenFilter authenticationJwtTokenFilter() {
+    //   return new AuthTokenFilter();
+    // }
   
   //@Override
   //public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
@@ -85,12 +97,14 @@ public class WebSecurityConfig {
       http.csrf(csrf -> csrf.disable())
           .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/api/test/**")
-              .permitAll().anyRequest().authenticated());
+          .authorizeHttpRequests(auth -> auth
+          .requestMatchers("/api/auth/**").permitAll()
+          .requestMatchers("/api/admin/**").hasRole("ADMIN")
+          .anyRequest().authenticated());
   
       http.authenticationProvider(authenticationProvider());
   
-      http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+      http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
   
       return http.build();
     }
