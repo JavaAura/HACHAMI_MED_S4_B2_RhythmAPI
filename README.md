@@ -56,7 +56,7 @@ A robust RESTful API for managing a music catalog, built with Spring Boot and Mo
 1. Clone the repository:
 ```bash
 git clone https://github.com/JavaAura/HACHAMI_MED_S4_B2_RhythmAPI
-cd 
+cd Rhythm/
 ```
 
 2. Configure environment variables:
