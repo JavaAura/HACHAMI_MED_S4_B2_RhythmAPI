@@ -11,19 +11,19 @@ spring:
 
 Rhythm:
   app:
-    jwtSecret: your-secret-key
-    jwtExpirationMs: 10600000
+    jwtSecret: ${JWT_SECRET:b159102d7d070acf19e33459e01ea979276d9bd1d7293dd6bd46b077339c3e8a}
+    jwtExpirationMs: ${JWT_EXPIRATION:86400000}
 
 logging:
   level:
     root: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
-  file:
-    name: logs/rhythm-api.log
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  # file:
+  #   name: logs/rhythm-api.log
+  # pattern:
+  #   file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  #   console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
  # Swagger Configuration
 springfox:

@@ -5,7 +5,7 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.4
+      uri: ${MONGODB_URL:mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.4}
       database: ${DB_NAME:rhythm_db}
 
 logging:

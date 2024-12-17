@@ -10,9 +10,10 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.yc.Rhythm.config.JwtProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,14 +21,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private final JwtProperties jwtProperties;
 
-    private static final String SECRET_SECRET_KEY = "b159102d7d070acf19e33459e01ea979276d9bd1d7293dd6bd46b077339c3e8a";
-
-    // @Value("${Rhythm.app.jwtExpirationMs}")
-    private int jwtExpiration;  // Make expiration configurable
+    public JwtUtils(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
 
     public String extractUserName(String token) {
         return extractClaims(token, Claims::getSubject);
@@ -53,7 +55,7 @@ public class JwtUtils {
                 .setSubject(userDetails.getUsername())
                 .setIssuer("RhythmServer") 
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()  + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis()  + jwtProperties.getJwtExpirationMs()))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -72,7 +74,7 @@ public class JwtUtils {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getJwtSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
