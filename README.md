@@ -92,7 +92,7 @@ docker run -p 8080:8080 music-catalog-api
 ### Authentication Endpoints
 
 ```
-POST /api/auth/signup
+POST /api/auth/register
 POST /api/auth/login
 ```
 
@@ -121,9 +121,7 @@ GET    /api/albums/{albumId}/songs
 
 ```
 GET    /api/users
-GET    /api/users/{id}
-PUT    /api/users/{id}
-DELETE /api/users/{id}
+PUT /api/admin/roles/{username}   
 ```
 
 ## Security Implementation
