@@ -11,7 +11,7 @@ spring:
 
 Rhythm:
   app:
-    jwtSecret: ${JWT_SECRET:b159102d7d070acf19e33459e01ea979276d9bd1d7293dd6bd46b077339c3e8a}
+    jwtSecret: ${JWT_SECRET}
     jwtExpirationMs: ${JWT_EXPIRATION:86400000}
 
 logging:
