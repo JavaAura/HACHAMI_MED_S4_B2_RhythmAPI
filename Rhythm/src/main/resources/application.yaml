@@ -20,7 +20,7 @@ spring:
       resolve-lazily: true
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/rhythmdb}
+      uri: ${MONGODB_URI:mongodb://localhost:27018/rhythmdb}
   mvc:
     log-request-details: true
 

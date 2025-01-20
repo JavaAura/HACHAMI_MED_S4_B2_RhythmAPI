@@ -1,8 +1,8 @@
 package com.yc.Rhythm.entity;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "songs")
 public class Song {
@@ -12,7 +12,7 @@ public class Song {
 
     private String title;
     private String artist;
-    private Integer duration; // in seconds
+    private Integer duration;
     private Integer trackNumber;
     private String genre;
     private String audioFileId;

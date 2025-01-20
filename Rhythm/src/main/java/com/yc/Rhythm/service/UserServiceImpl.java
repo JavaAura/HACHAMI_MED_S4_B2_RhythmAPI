@@ -5,8 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.annotation.Profile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.yc.Rhythm.dto.res.UserResponseDto;
@@ -38,11 +36,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserResponseDto updateUserRoles(String username, Set<Role> newRoles) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+    public UserResponseDto updateUserRoles(String userId, Set<Role> newRoles) {
+        Optional<User> userOptional = userRepository.findById(userId);
 
         if (!userOptional.isPresent()) {
-            throw new RuntimeException("User not found with username: " + username);
+            throw new RuntimeException("User not found with userId: " + userId);
         }
 
         User user = userOptional.get();

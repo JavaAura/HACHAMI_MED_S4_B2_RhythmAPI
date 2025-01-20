@@ -1,21 +1,24 @@
 package com.yc.Rhythm.service;
 
-import com.yc.Rhythm.dto.req.AlbumRequest;
-import com.yc.Rhythm.dto.res.AlbumResponse;
-import com.yc.Rhythm.entity.Album;
-import com.yc.Rhythm.entity.Song;
-import com.yc.Rhythm.repository.AlbumRepository;
-import com.yc.Rhythm.service.Interfaces.IAlbumService;
-import com.yc.Rhythm.Mapper.AlbumMapper;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.yc.Rhythm.Mapper.AlbumMapper;
+import com.yc.Rhythm.dto.req.AlbumRequest;
+import com.yc.Rhythm.dto.res.AlbumResponse;
+import com.yc.Rhythm.entity.Album;
+import com.yc.Rhythm.entity.Category;
+import com.yc.Rhythm.entity.Song;
+import com.yc.Rhythm.repository.AlbumRepository;
+import com.yc.Rhythm.repository.CategoryRepository;
+import com.yc.Rhythm.service.Interfaces.IAlbumService;
 
 @Service
 public class AlbumServiceImpl implements IAlbumService {
@@ -24,12 +27,14 @@ public class AlbumServiceImpl implements IAlbumService {
     private final AlbumRepository albumRepository;
     private final AlbumMapper albumMapper;
     private final GridFsService gridFsService;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public AlbumServiceImpl(AlbumRepository albumRepository, AlbumMapper albumMapper, GridFsService gridFsService) {
+    public AlbumServiceImpl(AlbumRepository albumRepository, AlbumMapper albumMapper, GridFsService gridFsService, CategoryRepository categoryRepository) {
         this.albumRepository = albumRepository;
         this.albumMapper = albumMapper;
         this.gridFsService = gridFsService;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -37,12 +42,23 @@ public class AlbumServiceImpl implements IAlbumService {
     public AlbumResponse createAlbum(AlbumRequest request) throws IOException {
         Album album = albumMapper.toEntity(request);
 
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
+            album.setCategory(category);
+        }else{
+        logger.info("not foud");
+
+        }
+
         if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
             String coverImageId = gridFsService.storeFile(request.getCoverImage());
             album.setCoverImageId(coverImageId);
         }
 
         Album savedAlbum = albumRepository.save(album);
+        logger.info("Category name"+album.getCategory());
+
         return albumMapper.toResponse(savedAlbum);
     }
 
@@ -53,6 +69,12 @@ public class AlbumServiceImpl implements IAlbumService {
                 .orElseThrow(() -> new RuntimeException("Album not found"));
 
         albumMapper.updateEntityFromRequest(request, album);
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
+            album.setCategory(category);
+        }
 
         if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
             if (album.getCoverImageId() != null) {

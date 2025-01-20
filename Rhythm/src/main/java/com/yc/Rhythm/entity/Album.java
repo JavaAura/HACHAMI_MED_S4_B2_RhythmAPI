@@ -1,11 +1,11 @@
 package com.yc.Rhythm.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "albums")
 public class Album {
@@ -16,8 +16,10 @@ public class Album {
     private String title;
     private String artist;
     private Integer releaseYear;
-    private String genre;
     private String coverImageId;
+
+    @DBRef
+    private Category category;
 
     @DBRef(lazy = true)
     private List<Song> songs = new ArrayList<>();
@@ -25,11 +27,10 @@ public class Album {
     // Constructors
     public Album() {}
 
-    public Album(String title, String artist, Integer releaseYear, String genre) {
+    public Album(String title, String artist, Integer releaseYear) {
         this.title = title;
         this.artist = artist;
         this.releaseYear = releaseYear;
-        this.genre = genre;
     }
 
     // Getters and Setters
@@ -65,14 +66,6 @@ public class Album {
         this.releaseYear = releaseYear;
     }
 
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
     public String getCoverImageId() {
         return coverImageId;
     }
@@ -87,6 +80,14 @@ public class Album {
 
     public void setSongs(List<Song> songs) {
         this.songs = songs;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public void addSong(Song song) {
@@ -104,8 +105,8 @@ public class Album {
                 ", title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
                 ", releaseYear=" + releaseYear +
-                ", genre='" + genre + '\'' +
                 ", coverImageId='" + coverImageId + '\'' +
+                ", category=" + (category != null ? category.getName() : "null") +
                 ", songs=" + (songs != null ? songs.size() : 0) + " songs" +
                 '}';
     }
