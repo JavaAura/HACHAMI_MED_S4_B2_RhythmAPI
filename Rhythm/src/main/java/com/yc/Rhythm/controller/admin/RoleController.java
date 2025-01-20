@@ -3,7 +3,6 @@ package com.yc.Rhythm.controller.admin;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Role Controller", description = "Gestion des rôles par l'administrateur")
@@ -33,10 +33,12 @@ public class RoleController {
      
     
     private final RoleServiceImpl roleService;
-
     private final IUserService userService;
 
-    public RoleController(RoleServiceImpl roleService ,IUserService userService){
+
+    // private final IUserService userService;
+
+    public RoleController(RoleServiceImpl roleService,IUserService userService){
         this.roleService = roleService;
         this.userService = userService;
     }

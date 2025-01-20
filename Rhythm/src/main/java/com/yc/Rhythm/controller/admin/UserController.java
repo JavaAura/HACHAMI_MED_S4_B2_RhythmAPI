@@ -1,4 +1,4 @@
-package com.yc.Rhythm.controller;
+package com.yc.Rhythm.controller.admin;
 
 import java.util.List;
 
@@ -34,6 +34,5 @@ public class UserController {
         List<UserResponseDto> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
-
-    
 }
+

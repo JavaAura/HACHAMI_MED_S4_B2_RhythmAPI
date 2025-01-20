@@ -1,6 +1,6 @@
 package com.yc.Rhythm.dto.req;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 
 public class RoleRequest {
       private String id;

@@ -1,131 +1,131 @@
 package com.yc.Rhythm.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import com.yc.Rhythm.Mapper.AlbumMapper;
 import com.yc.Rhythm.dto.req.AlbumRequest;
 import com.yc.Rhythm.dto.res.AlbumResponse;
 import com.yc.Rhythm.entity.Album;
 import com.yc.Rhythm.entity.Song;
-import com.yc.Rhythm.entity.SongRepository;
 import com.yc.Rhythm.repository.AlbumRepository;
 import com.yc.Rhythm.service.Interfaces.IAlbumService;
+import com.yc.Rhythm.Mapper.AlbumMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-
+import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class AlbumServiceImpl implements IAlbumService {
-    
+
+    private final Logger logger = LoggerFactory.getLogger(AlbumServiceImpl.class);
     private final AlbumRepository albumRepository;
-    private final SongRepository songRepository;
     private final AlbumMapper albumMapper;
+    private final GridFsService gridFsService;
 
     @Autowired
-    public AlbumServiceImpl(com.yc.Rhythm.repository.AlbumRepository albumRepository, SongRepository songRepository, AlbumMapper albumMapper){
+    public AlbumServiceImpl(AlbumRepository albumRepository, AlbumMapper albumMapper, GridFsService gridFsService) {
         this.albumRepository = albumRepository;
-        this.songRepository = songRepository;
         this.albumMapper = albumMapper;
+        this.gridFsService = gridFsService;
     }
 
     @Override
-    public AlbumResponse createAlbum(AlbumRequest request) {
+    @Transactional
+    public AlbumResponse createAlbum(AlbumRequest request) throws IOException {
         Album album = albumMapper.toEntity(request);
+
+        if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
+            String coverImageId = gridFsService.storeFile(request.getCoverImage());
+            album.setCoverImageId(coverImageId);
+        }
+
         Album savedAlbum = albumRepository.save(album);
         return albumMapper.toResponse(savedAlbum);
     }
 
     @Override
-    public AlbumResponse updateAlbum(String id, AlbumRequest request) {
-        Optional<Album> album = albumRepository.findById(id);
-        if (album.isEmpty()) {
-            throw new RuntimeException("Album non trouvé");
+    @Transactional
+    public AlbumResponse updateAlbum(String id, AlbumRequest request) throws IOException {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Album not found"));
+
+        albumMapper.updateEntityFromRequest(request, album);
+
+        if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
+            if (album.getCoverImageId() != null) {
+                gridFsService.deleteFile(album.getCoverImageId());
+            }
+            String coverImageId = gridFsService.storeFile(request.getCoverImage());
+            album.setCoverImageId(coverImageId);
         }
 
-        if(request.getTitle() != null) {
-            album.get().setTitle(request.getTitle());
-        }
-        if(request.getArtist() != null) {
-            album.get().setArtist(request.getArtist());
-        }
-        if (request.getReleaseYear() != null) {
-            album.get().setReleaseYear(request.getReleaseYear());
-        }
-        if(request.getGenre() != null) {
-            album.get().setGenre(request.getGenre());
-        }
-        Album savedAlbum = albumRepository.save(album.get());
-       
-        return albumMapper.toResponse(savedAlbum);
+        Album updatedAlbum = albumRepository.save(album);
+        return albumMapper.toResponse(updatedAlbum);
     }
 
     @Override
+    @Transactional
     public void deleteAlbum(String id) {
-        Optional<Album> album = albumRepository.findById(id);
-        if (album.isEmpty()) {
-            throw new RuntimeException("Album non trouvé");
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Album not found"));
+
+        if (album.getCoverImageId() != null) {
+            gridFsService.deleteFile(album.getCoverImageId());
         }
-        List<Song> songs = album.get().getSongs();
-        if (songs != null) {
-            for (Song song : songs) {
-                songRepository.delete(song);
-            }
-        }
-        
-        albumRepository.delete(album.get());
+
+        albumRepository.delete(album);
     }
 
-
-
-    // all users fonction
     @Override
     public Page<AlbumResponse> getAllAlbums(Pageable pageable) {
-        Page<Album> albums = albumRepository.findAll(pageable);
-        return albums.map(albumMapper::toResponse);
+        Page<Album> albumPage = albumRepository.findAll(pageable);
+        return albumPage.map(albumMapper::toResponse);
     }
 
     @Override
-    public Page<AlbumResponse> getAlbumsByTitle(String title, Pageable pageable) {
-        Page<Album> albums = albumRepository.findByTitleContaining(title, pageable);
-        if (albums.isEmpty()) {
-            throw new RuntimeException("Aucun album trouvé avec ce titre " + title);
-        }
-        return albums.map(albumMapper::toResponse);
+    public AlbumResponse getAlbumById(String id) {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Album not found"));
+        return albumMapper.toResponse(album);
+    }
+
+    @Override
+    public Album getAlbumEntityById(String id) {
+        return albumRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Album not found"));
+    }
+
+    @Override
+    public Page<AlbumResponse> searchAlbums(String query, Pageable pageable) {
+        Page<Album> albumPage = albumRepository.findByTitleContainingIgnoreCaseOrArtistContainingIgnoreCase(query, query, pageable);
+        return albumPage.map(albumMapper::toResponse);
     }
 
     @Override
     public Page<AlbumResponse> getAlbumsByArtist(String artist, Pageable pageable) {
-        Page<Album> albums = albumRepository.findByArtistContaining(artist, pageable);
-        if (albums.isEmpty()) {
-            throw new RuntimeException("Aucun album trouvé de l'artiste: " + artist);
+        Page<Album> albumPage = albumRepository.findByArtistContainingIgnoreCase(artist, pageable);
+        return albumPage.map(albumMapper::toResponse);
+    }
+
+    @Override
+    @Transactional
+    public void addSongReferenceToAlbum(String albumId, String songId) {
+        logger.debug("Adding song reference to album with ID: {}", albumId);
+        Album album = albumRepository.findById(albumId)
+            .orElseThrow(() -> new RuntimeException("Album not found"));
+    
+        if (!album.getSongs().stream().anyMatch(song -> song.getId().equals(songId))) {
+            Song songReference = new Song();
+            songReference.setId(songId);
+            album.getSongs().add(songReference);
+            albumRepository.save(album);
+            logger.debug("Song reference added to album successfully");
+        } else {
+            logger.debug("Song reference already exists in the album");
         }
-        return albums.map(albumMapper::toResponse);
-    }
-
-    @Override
-    public Page<AlbumResponse> filterAlbumsByYear(int startYear, int endYear, Pageable pageable) {
-        Page<Album> albums = albumRepository.findByReleaseYearBetween(startYear, endYear, pageable);
-        if (albums.isEmpty()) {
-            throw new RuntimeException("Aucun album trouvé entre les années " + startYear + " et " + endYear);
-        }
-        return albums.map(albumMapper::toResponse);
-    }
-
-
-    // need it for song creation
-    @Override
-    public Album getAlbumById(String id) {
-        return albumRepository.findById(id).orElseThrow(()->  new RuntimeException("Aucun album trouvé de l'album "));
-    }
-
-    @Override
-    public Album updateAlbum(Album album) {
-        return albumRepository.save(album);
     }
 }
+

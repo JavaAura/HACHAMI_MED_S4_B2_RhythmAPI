@@ -1,4 +1,6 @@
-package com.yc.Rhythm.security;
+package com.yc.Rhythm.security.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,63 +19,58 @@ import com.yc.Rhythm.security.jwt.AuthEntryPointJwt;
 import com.yc.Rhythm.security.jwt.AuthTokenFilter;
 import com.yc.Rhythm.security.service.UserDetailsServiceImpl;
 
-
-
 @Configuration
-@EnableMethodSecurity
 @EnableWebSecurity
-public class WebSecurityConfig {
-
+@EnableMethodSecurity
+public class SecurityConfig {
+    @Autowired
     UserDetailsServiceImpl userDetailsService;
-  
+
+    @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
-    private AuthTokenFilter authTokenFilter;
-
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService ,  AuthEntryPointJwt unauthorizedHandler, AuthTokenFilter authTokenFilter){
-      this.userDetailsService = userDetailsService;
-      this.unauthorizedHandler = unauthorizedHandler;
-      this.authTokenFilter = authTokenFilter;
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
     }
- 
-  
+
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-      DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-  
-      authProvider.setUserDetailsService(userDetailsService);
-      authProvider.setPasswordEncoder(passwordEncoder());
-  
-      return authProvider;
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+     
+        return authProvider;
     }
-  
 
-  
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-      return authConfig.getAuthenticationManager();
+        return authConfig.getAuthenticationManager();
     }
-  
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-      return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
-  
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-      http.csrf(csrf -> csrf.disable())
-          .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-          .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .authorizeHttpRequests(auth -> auth
-          .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-          .requestMatchers("/api/admin/**").hasRole("ADMIN")
-          .requestMatchers("/api/users/**").hasAnyRole("USER","ADMIN") 
-          .anyRequest().authenticated());
-  
-      http.authenticationProvider(authenticationProvider());
-  
-      http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
-  
-      return http.build();
+        http.csrf(csrf -> csrf.disable())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> 
+                auth.requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/test/**").permitAll()
+                    .anyRequest().authenticated()
+            );
+        
+        http.authenticationProvider(authenticationProvider());
+
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        
+        return http.build();
     }
 }
+

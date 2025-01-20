@@ -1,43 +1,42 @@
 package com.yc.Rhythm.dto.req;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 public class AlbumRequest {
 
-    private String id;
-
-    @NotBlank(message = "Le titre est obligatoire")
+    @NotBlank(message = "Title is required")
+    @Size(max = 100, message = "Title must be less than 100 characters")
+    @Schema(description = "Album title", example = "Thriller")
     private String title;
 
-    @NotBlank(message = "L'artiste est obligatoire")
+    @NotBlank(message = "Artist is required")
+    @Size(max = 100, message = "Artist name must be less than 100 characters")
+    @Schema(description = "Album artist", example = "Michael Jackson")
     private String artist;
 
-    @Min(value = 1980, message = "L'année de sortie doit être supérieure à 1980")
-    @Max(value = 2024, message = "L'année de sortie doit être inférieure à 2024")
+    @NotNull(message = "Release year is required")
+    @Min(value = 1900, message = "Release year must be after 1900")
+    @Max(value = 2100, message = "Release year must be before 2100")
+    @Schema(description = "Album release year", example = "1982")
     private Integer releaseYear;
 
-    @NotBlank(message = "Le genre est obligatoire")
+    @NotBlank(message = "Genre is required")
+    @Size(max = 50, message = "Genre must be less than 50 characters")
+    @Schema(description = "Album genre", example = "Pop")
     private String genre;
 
-    public AlbumRequest() {}
+    @Schema(description = "Album cover image file")
+    private MultipartFile coverImage;
 
-    public AlbumRequest(String id, String title, String artist, Integer releaseYear, String genre) {
-        this.id = id;
+    // Constructor
+    public AlbumRequest(String title, String artist, Integer releaseYear, String genre, MultipartFile coverImage) {
         this.title = title;
         this.artist = artist;
         this.releaseYear = releaseYear;
         this.genre = genre;
-    }
-
- 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        this.coverImage = coverImage;
     }
 
     public String getTitle() {
@@ -71,4 +70,13 @@ public class AlbumRequest {
     public void setGenre(String genre) {
         this.genre = genre;
     }
+
+    public MultipartFile getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(MultipartFile coverImage) {
+        this.coverImage = coverImage;
+    }
 }
+

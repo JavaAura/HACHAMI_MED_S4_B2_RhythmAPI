@@ -1,21 +1,27 @@
 package com.yc.Rhythm.dto.res;
 
 public class SongResponse {
+    private String id;
     private String title;
+    private String artist;
     private Integer duration;
     private Integer trackNumber;
-    private AlbumSimpleResponse album;
+    private String genre;
+    private String albumId;
+    private String albumTitle;
+    private String audioFileId;
+    private String imageId;
 
-    public SongResponse() {}
+    // Getters and setters
 
-    public SongResponse(String title, Integer duration, Integer trackNumber, AlbumSimpleResponse album) {
-        this.title = title;
-        this.duration = duration;
-        this.trackNumber = trackNumber;
-        this.album = album;
+    public String getId() {
+        return id;
     }
 
-    // Getter and setter for title
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -24,7 +30,14 @@ public class SongResponse {
         this.title = title;
     }
 
-    // Getter and setter for duration
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     public Integer getDuration() {
         return duration;
     }
@@ -33,7 +46,6 @@ public class SongResponse {
         this.duration = duration;
     }
 
-    // Getter and setter for trackNumber
     public Integer getTrackNumber() {
         return trackNumber;
     }
@@ -42,12 +54,49 @@ public class SongResponse {
         this.trackNumber = trackNumber;
     }
 
-    // Getter and setter for album
-    public AlbumSimpleResponse getAlbum() {
-        return album;
+    public String getGenre() {
+        return genre;
     }
 
-    public void setAlbum(AlbumSimpleResponse album) {
-        this.album = album;
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getAlbumId() {
+        return albumId;
+    }
+
+    public void setAlbumId(String albumId) {
+        this.albumId = albumId;
+    }
+
+    public String getAlbumTitle() {
+        return albumTitle;
+    }
+
+    public void setAlbumTitle(String albumTitle) {
+        this.albumTitle = albumTitle;
+    }
+
+    public String getAudioFileId() {
+        return audioFileId;
+    }
+
+    public void setAudioFileId(String audioFileId) {
+        this.audioFileId = audioFileId;
+    }
+
+    public String getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
+    }
+
+    public SongResponse(String id, String title) {
+        this.id = id;
+        this.title = title;
     }
 }
+

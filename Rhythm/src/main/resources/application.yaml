@@ -1,32 +1,46 @@
 server:
   port: ${APP_PORT:8089}
+  tomcat:
+    max-swallow-size: 1000MB
+    max-http-form-post-size: 1000MB
 
 spring:
   application:
     name: RhythmApi
   profiles:
     active: ${ACTIVE_PROFILE:prod}
-  # security:
-  #   enabled: false
+  security:
+    filter:
+      order: 10
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+      resolve-lazily: true
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/rhythmdb}
+  mvc:
+    log-request-details: true
 
-Rhythm:
+rhythm:
   app:
-    jwtSecret: ${JWT_SECRET}
+    jwtSecret: ${JWT_SECRET:defaultSecretKeyWhichShouldBeChangedInProduction}
     jwtExpirationMs: ${JWT_EXPIRATION:86400000}
 
 logging:
   level:
     root: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-  # file:
-  #   name: logs/rhythm-api.log
-  # pattern:
-  #   file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  #   console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    org.springframework.web: DEBUG
+    org.springframework.http: DEBUG
+    com.yc.Rhythm: DEBUG
 
- # Swagger Configuration
-springfox:
-  documentation:
-    swagger-ui:
-      path: /swagger-ui.html
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# ... (rest of the configuration remains the same)
+

@@ -1,85 +1,64 @@
 package com.yc.Rhythm.controller.client;
 
-import javax.validation.Valid;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.yc.Rhythm.dto.res.SongResponse;
-import com.yc.Rhythm.service.SongServiceImpl;
-
+import com.yc.Rhythm.service.Interfaces.ISongService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Tag(name = "Client Song Controller", description = "Gestion des chansons par le client")
-@RequestMapping("/api/users/songs")
+@RequestMapping("/api/songs")
+@Tag(name = "Client Song", description = "Client APIs for song operations")
 public class ClientSongController {
-    private final SongServiceImpl songService;
-    public ClientSongController(SongServiceImpl songService){
+
+    private final ISongService songService;
+
+    @Autowired
+    public ClientSongController(ISongService songService) {
         this.songService = songService;
     }
 
-
-    /**
-     * Get all songs
-     * @return the list of songs
-     */
-    @Operation(summary = "Liste des chansons", description = "Récupère toutes les chansons avec pagination et tri")
-    @ApiResponse(responseCode = "200", description = "Chansons récupérées avec succès", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
     @GetMapping
-    public ResponseEntity<Page<SongResponse>> getAllSongs(@RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size,
-                                                          @RequestParam(defaultValue = "id") String sortBy,
-                                                          @RequestParam(defaultValue = "asc") String sortOrder) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortOrder), sortBy));
+    @Operation(summary = "Get all songs", description = "Retrieves a paginated list of all songs")
+    @ApiResponse(responseCode = "200", description = "Songs retrieved successfully", 
+                 content = @Content(schema = @Schema(implementation = Page.class)))
+    public ResponseEntity<Page<SongResponse>> getAllSongs(Pageable pageable) {
         Page<SongResponse> songs = songService.getAllSongs(pageable);
         return ResponseEntity.ok(songs);
     }
 
-    /**
-     * Search songs by title
-     * @param title the title of the song
-     * @return the list of songs
-     */
-    @Operation(summary = "Recherche de chansons par titre", description = "Recherche de chansons par titre avec pagination et tri")
-    @ApiResponse(responseCode = "200", description = "Chansons récupérées avec succès", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
-    @ApiResponse(responseCode = "404", description = "Aucune chanson trouvée", content = @Content(mediaType = "application/json", schema = @Schema()))
-    @GetMapping("/searchByTitle")
-    public ResponseEntity<Page<SongResponse>> searchByTitle(@Valid @RequestParam String title, @RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size,
-                                                          @RequestParam(defaultValue = "id") String sortBy,
-                                                          @RequestParam(defaultValue = "asc") String sortOrder) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortOrder), sortBy));
-        Page<SongResponse> songs = songService.getAllSongsByTitle(title, pageable);
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a song by ID", description = "Retrieves a song by its ID")
+    @ApiResponse(responseCode = "200", description = "Song retrieved successfully", 
+                 content = @Content(schema = @Schema(implementation = SongResponse.class)))
+    public ResponseEntity<SongResponse> getSongById(@PathVariable String id) {
+        SongResponse song = songService.getSongById(id);
+        return ResponseEntity.ok(song);
+    }
+
+    @GetMapping("/album/{albumId}")
+    @Operation(summary = "Get songs by album", description = "Retrieves songs from a specific album")
+    @ApiResponse(responseCode = "200", description = "Songs retrieved successfully", 
+                 content = @Content(schema = @Schema(implementation = Page.class)))
+    public ResponseEntity<Page<SongResponse>> getSongsByAlbum(@PathVariable String albumId, Pageable pageable) {
+        Page<SongResponse> songs = songService.getSongsByAlbum(albumId, pageable);
         return ResponseEntity.ok(songs);
     }
 
-    /**
-     * Search songs by album
-     * @param album the album of the song
-     * @return the list of songs
-     */
-    @Operation(summary = "Recherche de chansons par album", description = "Recherche de chansons par album avec pagination et tri")
-    @ApiResponse(responseCode = "200", description = "Chansons récupérées avec succès", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
-    @ApiResponse(responseCode = "404", description = "Aucune chanson trouvée", content = @Content(mediaType = "application/json", schema = @Schema()))
-    @GetMapping("/searchByAlbum")
-    public ResponseEntity<Page<SongResponse>> searchByAlbum(@Valid @RequestParam String album, @RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size,
-                                                          @RequestParam(defaultValue = "id") String sortBy,
-                                                          @RequestParam(defaultValue = "asc") String sortOrder) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortOrder), sortBy));
-        Page<SongResponse> songs = songService.getAllSongsByAlbum(album, pageable);
+    @GetMapping("/search")
+    @Operation(summary = "Search songs", description = "Searches songs by title or artist")
+    @ApiResponse(responseCode = "200", description = "Search results retrieved successfully", 
+                 content = @Content(schema = @Schema(implementation = Page.class)))
+    public ResponseEntity<Page<SongResponse>> searchSongs(@RequestParam String query, Pageable pageable) {
+        Page<SongResponse> songs = songService.searchSongs(query, pageable);
         return ResponseEntity.ok(songs);
     }
 }
+

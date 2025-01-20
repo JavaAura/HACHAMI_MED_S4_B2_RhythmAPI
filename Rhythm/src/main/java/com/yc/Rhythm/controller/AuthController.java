@@ -1,26 +1,12 @@
 package com.yc.Rhythm.controller;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,16 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yc.Rhythm.dto.req.LoginRequest;
 import com.yc.Rhythm.dto.req.SignupRequest;
 import com.yc.Rhythm.dto.res.JwtResponse;
-import com.yc.Rhythm.dto.res.MessageResponse;
-import com.yc.Rhythm.entity.Role;
-import com.yc.Rhythm.entity.User;
-import com.yc.Rhythm.entity.enums.ERole;
-import com.yc.Rhythm.repository.RoleRepository;
-import com.yc.Rhythm.repository.UserRepository;
-import com.yc.Rhythm.security.jwt.JwtUtils;
-import com.yc.Rhythm.security.service.UserDetailsImpl;
 import com.yc.Rhythm.service.AuthService;
-import com.yc.Rhythm.service.Interfaces.IAuthSerivce;
 
 
 

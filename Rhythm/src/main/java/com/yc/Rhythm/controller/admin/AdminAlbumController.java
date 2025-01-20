@@ -1,97 +1,80 @@
 package com.yc.Rhythm.controller.admin;
 
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.yc.Rhythm.dto.req.AlbumRequest;
 import com.yc.Rhythm.dto.res.AlbumResponse;
-import com.yc.Rhythm.service.AlbumServiceImpl;
-
+import com.yc.Rhythm.service.Interfaces.IAlbumService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/admin/albums")
-@Tag(name = "Admin Album Controller", description = "Gestion des albums par l'administrateur")
+@Tag(name = "Admin Album Management", description = "APIs for managing albums (Admin only)")
 public class AdminAlbumController {
-       
+
+    private final IAlbumService albumService;
+
     @Autowired
-    private  AlbumServiceImpl albumService;
-
-  
-
-    /**
-     * Creates a new album based on the provided request
-     * @param request The album creation request
-     * @return The created album response
-     */
-    @Operation(summary = "Create a new album", description = "Creates a new album with the provided information")
-    @ApiResponse(responseCode = "201", description = "Album successfully created")
-    @ApiResponse(responseCode = "400",
-     description = "Invalid request body - Validation errors", 
-            content = @Content(mediaType = "application/json", schema = @Schema(example = """
-        {
-            "message": "Validation failed: title: Title is required",
-            "status": 400
-        }
-        """)))
-    @PostMapping
-    public ResponseEntity<AlbumResponse> createAlbum(@Valid @RequestBody AlbumRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(albumService.createAlbum(request));
+    public AdminAlbumController(IAlbumService albumService) {
+        this.albumService = albumService;
     }
 
-
-    /**
-     * Update an album with the provided information
-     * @param id The album ID
-     * @param request The album update request
-     * @return The updated album response
-     */
-    @Operation(summary = "modify an album", description = "modifer les informations d'un album")
-    @ApiResponse(responseCode = "200", description = "album modifié avec succès")
-    @ApiResponse(responseCode = "404", description = "album non trouvé", 
-    content = @Content(mediaType = "application/json", schema = @Schema(example = """
-        {
-            "message": "Album non trouvé",
-            "status": 404
-        }
-        """)))
-    @PutMapping("update")
-    public AlbumResponse updateAlbum(@Valid @RequestParam String id,  @RequestBody AlbumRequest request) {
-        return albumService.updateAlbum(id, request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Create a new album", description = "Creates a new album with the given details")
+    @ApiResponse(responseCode = "201", description = "Album created successfully", 
+                 content = @Content(schema = @Schema(implementation = AlbumResponse.class)))
+    public ResponseEntity<AlbumResponse> createAlbum(@Valid @ModelAttribute AlbumRequest albumRequest) throws IOException {
+        AlbumResponse response = albumService.createAlbum(albumRequest);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Update an album", description = "Updates an existing album with the given details")
+    @ApiResponse(responseCode = "200", description = "Album updated successfully", 
+                 content = @Content(schema = @Schema(implementation = AlbumResponse.class)))
+    public ResponseEntity<AlbumResponse> updateAlbum(
+            @PathVariable String id,
+            @Valid @ModelAttribute AlbumRequest albumRequest) throws IOException {
+        AlbumResponse response = albumService.updateAlbum(id, albumRequest);
+        return ResponseEntity.ok(response);
+    }
 
-
-    /**
-     * Delete an album with the provided ID
-     * @param id The album ID
-     */
-    @Operation(summary = "delete an album", description = "supprimer un album")
-    @ApiResponse(responseCode = "204", description = "album supprimé avec succès")
-    @ApiResponse(responseCode = "404", description = "album non trouvé", 
-    content = @Content(mediaType = "application/json", schema = @Schema(example = """
-        {
-            "message": "Album non trouvé",
-            "status": 404
-        }
-        """)))
-    @DeleteMapping("delete")
-    public ResponseEntity<Void> deleteAlbum(@Valid @RequestParam String id) {
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an album", description = "Deletes an album by its ID")
+    @ApiResponse(responseCode = "204", description = "Album deleted successfully")
+    public ResponseEntity<Void> deleteAlbum(@PathVariable String id) {
         albumService.deleteAlbum(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    @Operation(summary = "Get all albums", description = "Retrieves a paginated list of all albums")
+    @ApiResponse(responseCode = "200", description = "Albums retrieved successfully", 
+                 content = @Content(schema = @Schema(implementation = Page.class)))
+    public ResponseEntity<Page<AlbumResponse>> getAllAlbums(Pageable pageable) {
+        Page<AlbumResponse> albums = albumService.getAllAlbums(pageable);
+        return ResponseEntity.ok(albums);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get an album by ID", description = "Retrieves an album by its ID")
+    @ApiResponse(responseCode = "200", description = "Album retrieved successfully", 
+                 content = @Content(schema = @Schema(implementation = AlbumResponse.class)))
+    public ResponseEntity<AlbumResponse> getAlbumById(@PathVariable String id) {
+        AlbumResponse album = albumService.getAlbumById(id);
+        return ResponseEntity.ok(album);
+    }
 }
+

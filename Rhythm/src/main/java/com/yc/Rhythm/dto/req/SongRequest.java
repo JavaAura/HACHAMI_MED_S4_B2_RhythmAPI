@@ -1,50 +1,76 @@
 package com.yc.Rhythm.dto.req;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 public class SongRequest {
-    private String id;
 
-    @NotBlank(message = "Le titre est obligatoire")
+    @NotBlank(message = "Title is required")
+    @Size(max = 100, message = "Title must be less than 100 characters")
+    @Schema(description = "Song title", example = "Your Song Title")
     private String title;
 
-    @NotNull(message = "La durée est obligatoire")
-    @Min(value = 1, message = "La durée doit être supérieure à 0")
+    @NotBlank(message = "Artist is required")
+    @Size(max = 100, message = "Artist name must be less than 100 characters")
+    @Schema(description = "Song artist", example = "Artist Name")
+    private String artist;
+
+    @NotNull(message = "Duration is required")
+    @Min(value = 1, message = "Duration must be at least 1 second")
+    @Schema(description = "Song duration in seconds", example = "180")
     private Integer duration;
 
-    @NotNull(message = "Le numéro de piste est obligatoire")
-    @Min(value = 1, message = "Le numéro de piste doit être supérieur à 0")
+    @NotNull(message = "Track number is required")
+    @Min(value = 1, message = "Track number must be at least 1")
+    @Schema(description = "Track number on the album", example = "1")
     private Integer trackNumber;
 
-    @NotNull(message = "L'ID de l'album est obligatoire")
+    @NotBlank(message = "Genre is required")
+    @Size(max = 50, message = "Genre must be less than 50 characters")
+    @Schema(description = "Song genre", example = "Pop")
+    private String genre;
+
+    @NotBlank(message = "Album ID is required")
+    @Schema(description = "ID of the album this song belongs to", example = "678d22ab3986e91c94c68055")
     private String albumId;
 
+    @Schema(description = "Audio file of the song")
+    private MultipartFile audioFile;
+
+    @Schema(description = "Image file for the song (if different from album cover)")
+    private MultipartFile image;
+
+    // Default constructor
     public SongRequest() {}
 
-    public SongRequest(String id, String title, Integer duration, Integer trackNumber, String albumId) {
-        this.id = id;
+    // Constructor with all fields
+    public SongRequest(String title, String artist, Integer duration, Integer trackNumber, String genre, String albumId, MultipartFile audioFile, MultipartFile image) {
         this.title = title;
+        this.artist = artist;
         this.duration = duration;
         this.trackNumber = trackNumber;
+        this.genre = genre;
         this.albumId = albumId;
+        this.audioFile = audioFile;
+        this.image = image;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    // Getters and setters
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
     }
 
     public Integer getDuration() {
@@ -63,6 +89,14 @@ public class SongRequest {
         this.trackNumber = trackNumber;
     }
 
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
     public String getAlbumId() {
         return albumId;
     }
@@ -70,4 +104,21 @@ public class SongRequest {
     public void setAlbumId(String albumId) {
         this.albumId = albumId;
     }
+
+    public MultipartFile getAudioFile() {
+        return audioFile;
+    }
+
+    public void setAudioFile(MultipartFile audioFile) {
+        this.audioFile = audioFile;
+    }
+
+    public MultipartFile getImage() {
+        return image;
+    }
+
+    public void setImage(MultipartFile image) {
+        this.image = image;
+    }
 }
+

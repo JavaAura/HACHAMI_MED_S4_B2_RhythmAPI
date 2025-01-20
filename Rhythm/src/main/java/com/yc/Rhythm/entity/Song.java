@@ -1,12 +1,8 @@
 package com.yc.Rhythm.entity;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 @Document(collection = "songs")
 public class Song {
@@ -14,32 +10,29 @@ public class Song {
     @Id
     private String id;
 
-    @NotBlank(message = "Le titre ne peut pas être vide")
     private String title;
-
-    @PositiveOrZero(message = "La durée doit être positive ou zéro")
-    private Integer duration;
-
-    @PositiveOrZero(message = "Le numéro de piste doit être positif ou zéro")
+    private String artist;
+    private Integer duration; // in seconds
     private Integer trackNumber;
+    private String genre;
+    private String audioFileId;
+    private String imageId;
 
-    @NotNull(message = "Une chanson doit appartenir à un album")
-    @DBRef
+    @DBRef(lazy = true)
     private Album album;
 
-    // No-argument constructor
+    // Constructors
     public Song() {}
 
-    // All-arguments constructor
-    public Song(String id, String title, Integer duration, Integer trackNumber, Album album) {
-        this.id = id;
+    public Song(String title, String artist, Integer duration, Integer trackNumber, String genre) {
         this.title = title;
+        this.artist = artist;
         this.duration = duration;
         this.trackNumber = trackNumber;
-        this.album = album;
+        this.genre = genre;
     }
 
-    // Getter and setter for id
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -48,7 +41,6 @@ public class Song {
         this.id = id;
     }
 
-    // Getter and setter for title
     public String getTitle() {
         return title;
     }
@@ -57,7 +49,14 @@ public class Song {
         this.title = title;
     }
 
-    // Getter and setter for duration
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     public Integer getDuration() {
         return duration;
     }
@@ -66,7 +65,6 @@ public class Song {
         this.duration = duration;
     }
 
-    // Getter and setter for trackNumber
     public Integer getTrackNumber() {
         return trackNumber;
     }
@@ -75,7 +73,30 @@ public class Song {
         this.trackNumber = trackNumber;
     }
 
-    // Getter and setter for album
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getAudioFileId() {
+        return audioFileId;
+    }
+
+    public void setAudioFileId(String audioFileId) {
+        this.audioFileId = audioFileId;
+    }
+
+    public String getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
+    }
+
     public Album getAlbum() {
         return album;
     }
@@ -83,4 +104,20 @@ public class Song {
     public void setAlbum(Album album) {
         this.album = album;
     }
+
+    @Override
+    public String toString() {
+        return "Song{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", artist='" + artist + '\'' +
+                ", duration=" + duration +
+                ", trackNumber=" + trackNumber +
+                ", genre='" + genre + '\'' +
+                ", audioFileId='" + audioFileId + '\'' +
+                ", imageId='" + imageId + '\'' +
+                ", album=" + (album != null ? album.getId() : "null") +
+                '}';
+    }
 }
+

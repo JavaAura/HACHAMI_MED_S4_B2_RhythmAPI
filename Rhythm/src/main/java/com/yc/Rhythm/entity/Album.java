@@ -1,56 +1,38 @@
 package com.yc.Rhythm.entity;
 
-import java.util.List;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "albums")
 public class Album {
 
-    @Id    
+    @Id
     private String id;
 
-    @NotBlank(message = "Le titre est obligatoire") 
     private String title;
-
-    @NotBlank(message = "L'artiste est obligatoire")
     private String artist;
-
-    @NotNull(message = "La date de sortie est obligatoire")
-    @Min(value = 1980, message = "L'année de sortie doit être supérieure à 1980")
-    @Max(value = 2024, message = "L'année de sortie doit être inférieure à 2024")
     private Integer releaseYear;
-
-    @NotBlank(message = "Le genre est obligatoire")
     private String genre;
+    private String coverImageId;
 
-    @DBRef
-    private List<Song> songs;
+    @DBRef(lazy = true)
+    private List<Song> songs = new ArrayList<>();
 
-    // No-argument constructor
+    // Constructors
     public Album() {}
 
-    // All-arguments constructor
-    public Album(String id, String title, String artist, Integer releaseYear, String genre, List<Song> songs) {
-        this.id = id;
+    public Album(String title, String artist, Integer releaseYear, String genre) {
         this.title = title;
         this.artist = artist;
         this.releaseYear = releaseYear;
         this.genre = genre;
-        this.songs = songs;
     }
 
-    // Getter and setter for id
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -59,7 +41,6 @@ public class Album {
         this.id = id;
     }
 
-    // Getter and setter for title
     public String getTitle() {
         return title;
     }
@@ -68,7 +49,6 @@ public class Album {
         this.title = title;
     }
 
-    // Getter and setter for artist
     public String getArtist() {
         return artist;
     }
@@ -77,7 +57,6 @@ public class Album {
         this.artist = artist;
     }
 
-    // Getter and setter for releaseYear
     public Integer getReleaseYear() {
         return releaseYear;
     }
@@ -86,7 +65,6 @@ public class Album {
         this.releaseYear = releaseYear;
     }
 
-    // Getter and setter for genre
     public String getGenre() {
         return genre;
     }
@@ -95,7 +73,14 @@ public class Album {
         this.genre = genre;
     }
 
-    // Getter and setter for songs
+    public String getCoverImageId() {
+        return coverImageId;
+    }
+
+    public void setCoverImageId(String coverImageId) {
+        this.coverImageId = coverImageId;
+    }
+
     public List<Song> getSongs() {
         return songs;
     }
@@ -103,4 +88,26 @@ public class Album {
     public void setSongs(List<Song> songs) {
         this.songs = songs;
     }
+
+    public void addSong(Song song) {
+        this.songs.add(song);
+    }
+
+    public void removeSong(Song song) {
+        this.songs.remove(song);
+    }
+
+    @Override
+    public String toString() {
+        return "Album{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", artist='" + artist + '\'' +
+                ", releaseYear=" + releaseYear +
+                ", genre='" + genre + '\'' +
+                ", coverImageId='" + coverImageId + '\'' +
+                ", songs=" + (songs != null ? songs.size() : 0) + " songs" +
+                '}';
+    }
 }
+
