@@ -35,6 +35,8 @@ public class AdminInitializer implements CommandLineRunner {
                     return roleRepository.save(newAdminRole);
                 });
 
+        
+
         // Check if user role exists, if not create it
         Role userRole = roleRepository.findByName(ERole.ROLE_USER.toString())
                 .orElseGet(() -> {

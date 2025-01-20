@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.yc.Rhythm.entity.Role;
 
 public class UserResponseDto {
+
     private String username;
     private String email;
     private Set<String> roles;
